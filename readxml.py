@@ -21,7 +21,25 @@ def get_contained_data_in_str(element):
 
 
 def is_bold_bounded(string):
-    if re.match(r'^(| |\n)<b>.*\</b>(| |\n)$', string):
+    if re.match(r'^(|[ ]+|\n)<b>.*\</b>(|[ ]+|\n)$', string):
+        return True
+    else:
+        return False
+
+
+def inner_text_without_tag(element):
+    li = []
+    for chd in element.itertext():
+        if is_superscript(element) != True:
+            li.append(chd)
+    allstr = ''.join(li)
+    return allstr
+
+
+def is_superscript(element):
+    width = element.get('width')
+    height = element.get('height')
+    if int(width) < 24 and int(height) < 15:
         return True
     else:
         return False
@@ -43,9 +61,24 @@ for child in root:
                 s = txt[0].text
                 if re.match(r'^(Part|PART|Schedule)', s):
                     print child[i][0].text
+                    loop = True
+                    counter = 1
+                    lis = []
+                    while loop:
+                        inner_text = inner_text_without_tag(child[i+counter])
+                        if re.match(r'^[ ]*[0-9]+', inner_text) or int(child[i+counter].get('left')) < 200:
+                            a = ''.join(lis)
+                            print a
+                            loop = False
+                        else:
+                            lis.append(inner_text)
+                            counter = counter + 1
+
+
+
                 # Now check pure bold one upper element part or not
                 # use enumerate()
-    #     else:
+        # else:
     #         print 'this is a plain text'
     # print 'pagenumber', child.get('number')
 
